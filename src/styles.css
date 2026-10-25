@@ -522,6 +522,15 @@ html[lang="en"] .table-card thead th:nth-child(7) { width: 78px; }
 }
 .detail h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
 .detail h3 .muted { font-size: 10.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: #a3a9b4; }
+.sec-range {
+  flex-shrink: 0;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #9aa1ad;
+  font-variant-numeric: tabular-nums;
+}
 
 .u-list { display: grid; gap: 10px; }
 .u-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) 128px; gap: 10px; align-items: center; }
@@ -539,14 +548,22 @@ html[lang="en"] .table-card thead th:nth-child(7) { width: 78px; }
 .stiff .u-value { margin-bottom: 7px; }
 
 .ruler { min-width: 108px; }
-.ruler-track { position: relative; height: 6px; border-radius: 999px; background: #f0ece3; }
+.ruler-track { position: relative; height: 6px; border-radius: 999px; background: #efeae0; }
 .ruler-fill {
   position: absolute;
   top: 0;
   bottom: 0;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(18, 131, 92, 0.26), rgba(18, 131, 92, 0.55));
+  border-radius: 2px;
+  background: rgba(18, 131, 92, 0.32);
 }
+.ruler-median {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: #c4bdae;
+}
+.ruler-mark { box-shadow: 0 0 0 2px rgba(255, 254, 251, 0.9), 0 1px 2px rgba(15, 20, 25, 0.25); }
 .ruler-mark {
   position: absolute;
   top: 50%;

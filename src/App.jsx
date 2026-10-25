@@ -281,6 +281,7 @@ export default function App() {
                 racket={selected}
                 estimate={selectedEstimate}
                 allRackets={rackets.rackets}
+                allEstimates={estimates.rackets}
                 onSelect={setSelectedId}
                 t={t}
                 lang={lang}
