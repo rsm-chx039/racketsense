@@ -1,9 +1,9 @@
-﻿import { useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { displayName } from '../i18n.js'
 
-const W = 1180
-const H = 620
-const M = { l: 64, r: 40, t: 28, b: 56 }
+const NARROW_BREAK = 620
+const initialWidth = () =>
+  Math.min(1180, Math.max(320, (typeof window === 'undefined' ? 1180 : window.innerWidth) - 90))
 
 const BRAND_COLORS = { Victor: '#1d4ed8', Yonex: '#12835c', 'Li-Ning': '#c2410c' }
 const BRAND_FALLBACK = '#6b7383'
@@ -102,6 +102,25 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
   const [sort, setSort] = useState({ key: 'y', dir: -1 })
 
   const c = t.compare
+  const plotRef = useRef(null)
+  const [plotW, setPlotW] = useState(initialWidth)
+  useEffect(() => {
+    const el = plotRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect?.width
+      if (w) setPlotW(Math.round(w))
+    })
+    ro.observe(el)
+    setPlotW(Math.round(el.getBoundingClientRect().width) || initialWidth())
+    return () => ro.disconnect()
+  }, [])
+  const W = Math.min(1180, Math.max(320, plotW))
+  const narrow = W < NARROW_BREAK
+  const H = narrow ? Math.round(Math.min(660, W * 1.45)) : 620
+  const M = narrow
+    ? { l: 44, r: 16, t: 24, b: 46 }
+    : { l: 64, r: 40, t: 28, b: 56 }
   const racketById = useMemo(() => new Map(rackets.map((r) => [r.id, r])), [rackets])
 
   const rows = useMemo(() => {
@@ -203,8 +222,8 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
     }).filter(Boolean)
   }, [filtered, plane, c.all])
 
-  const tickX = niceTicks(xd[0], xd[1])
-  const tickY = niceTicks(yd[0], yd[1])
+  const tickX = niceTicks(xd[0], xd[1], narrow ? 5 : 6)
+  const tickY = niceTicks(yd[0], yd[1], narrow ? 5 : 6)
 
   const sorted = useMemo(() => {
     const list = [...filtered]
@@ -257,42 +276,50 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
 
       <section className="cmp-filters" aria-label={c.plane.label}>
         <div className="cmp-frow">
-          <span className="cmp-flabel">{c.plane.label}</span>
-          <div className="seg">
-            <button className={plane === 'hh' ? 'active' : ''} aria-pressed={plane === 'hh'} onClick={() => setPlane('hh')}>{c.plane.hh}</button>
-            <button className={plane === 'flex' ? 'active' : ''} aria-pressed={plane === 'flex'} onClick={() => setPlane('flex')}>{c.plane.flex}</button>
+          <div className="cmp-group">
+            <span className="cmp-flabel">{c.plane.label}</span>
+            <div className="seg">
+              <button className={plane === 'hh' ? 'active' : ''} aria-pressed={plane === 'hh'} onClick={() => setPlane('hh')}>{c.plane.hh}</button>
+              <button className={plane === 'flex' ? 'active' : ''} aria-pressed={plane === 'flex'} onClick={() => setPlane('flex')}>{c.plane.flex}</button>
+            </div>
           </div>
-          <span className="cmp-flabel">{c.spec.label}</span>
-          <div className="cmp-chips">
-            <button className={`cmp-chip${uFilter === 'all' ? ' active' : ''}`} onClick={() => setUFilter('all')}>{c.all}</button>
-            {U_ORDER.map((u) => (
-              <button key={u} className={`cmp-chip${uFilter === u ? ' active' : ''}`} onClick={() => setUFilter(u)}>{u}</button>
-            ))}
+          <div className="cmp-group">
+            <span className="cmp-flabel">{c.spec.label}</span>
+            <div className="cmp-chips">
+              <button className={`cmp-chip${uFilter === 'all' ? ' active' : ''}`} onClick={() => setUFilter('all')}>{c.all}</button>
+              {U_ORDER.map((u) => (
+                <button key={u} className={`cmp-chip${uFilter === u ? ' active' : ''}`} onClick={() => setUFilter(u)}>{u}</button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="cmp-frow">
-          <span className="cmp-flabel">{c.brandLabel}</span>
-          <div className="cmp-chips">
-            <button className={`cmp-chip${brand === 'all' ? ' active' : ''}`} onClick={() => setBrand('all')}>{c.all}</button>
-            {brands.map(([b, n]) => (
-              <button key={b} className={`cmp-chip${brand === b ? ' active' : ''}`} onClick={() => setBrand(brand === b ? 'all' : b)}>
-                <i className="swatch" style={{ background: brandColor(b) }} />
-                {b}<span className="cmp-chip-n">{n}</span>
-              </button>
-            ))}
+          <div className="cmp-group">
+            <span className="cmp-flabel">{c.brandLabel}</span>
+            <div className="cmp-chips">
+              <button className={`cmp-chip${brand === 'all' ? ' active' : ''}`} onClick={() => setBrand('all')}>{c.all}</button>
+              {brands.map(([b, n]) => (
+                <button key={b} className={`cmp-chip${brand === b ? ' active' : ''}`} onClick={() => setBrand(brand === b ? 'all' : b)}>
+                  <i className="swatch" style={{ background: brandColor(b) }} />
+                  {b}<span className="cmp-chip-n">{n}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <label className="cmp-check">
-            <input type="checkbox" checked={onlyCertain} onChange={(e) => setOnlyCertain(e.target.checked)} />
-            {c.filters.onlyCertain}
-          </label>
-          <label className="cmp-check">
-            <input type="checkbox" checked={showUncertain} onChange={(e) => setShowUncertain(e.target.checked)} />
-            {c.filters.showUncertain}
-          </label>
-          <label className="cmp-check">
-            <input type="checkbox" checked={showFit} onChange={(e) => setShowFit(e.target.checked)} />
-            {c.filters.showFit}
-          </label>
+          <div className="cmp-checks">
+            <label className="cmp-check">
+              <input type="checkbox" checked={onlyCertain} onChange={(e) => setOnlyCertain(e.target.checked)} />
+              {c.filters.onlyCertain}
+            </label>
+            <label className="cmp-check">
+              <input type="checkbox" checked={showUncertain} onChange={(e) => setShowUncertain(e.target.checked)} />
+              {c.filters.showUncertain}
+            </label>
+            <label className="cmp-check">
+              <input type="checkbox" checked={showFit} onChange={(e) => setShowFit(e.target.checked)} />
+              {c.filters.showFit}
+            </label>
+          </div>
           <label className="search-field cmp-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
@@ -307,7 +334,6 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
         <section className="cmp-chartcard">
           <div className="cmp-chart-head">
             <span className="cmp-count">{c.count(filtered.length, modelCount)}</span>
-            <span className="cmp-swipe">{c.swipe}</span>
             <div className="cmp-legend">
               {brands.map(([b]) => (
                 <span className="k" key={b}><i className="swatch" style={{ background: brandColor(b) }} />{b}</span>
@@ -317,11 +343,14 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
                   <span className="cmp-shape" key={u}><LegendShape shape={shapeOf(u)} color="#5b6472" />{u}</span>
                 ))}
               </span>
+              {narrow && showFit && fits.map((f) => (
+                <span className="k fitkey" key={`fitkey-${f.u}`}>{f.u} r={f.r.toFixed(3)}</span>
+              ))}
               <span className="k">{c.legend.insufficient}</span>
             </div>
           </div>
 
-          <div className="plot-scroll">
+          <div className="plot-scroll" ref={plotRef}>
             <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={c.title}>
               <rect x={M.l} y={M.t} width={W - M.l - M.r} height={H - M.t - M.b} className="cmp-plotbg" />
               {tickX.map((v) => (
@@ -357,9 +386,16 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
                     y2={sy(f.a * f.maxX + f.b)}
                     className="cmp-fit"
                   />
-                  <text x={sx(f.maxX) + 4} y={sy(f.a * f.maxX + f.b) - 5} className="cmp-fitlabel">
-                    {c.fitLabel(f.u, f.r.toFixed(3))}
-                  </text>
+                  {!narrow && (
+                    <text
+                      x={sx(f.maxX) > W - 96 ? sx(f.maxX) - 4 : sx(f.maxX) + 4}
+                      y={sy(f.a * f.maxX + f.b) - 5}
+                      textAnchor={sx(f.maxX) > W - 96 ? 'end' : 'start'}
+                      className="cmp-fitlabel"
+                    >
+                      {c.fitLabel(f.u, f.r.toFixed(3))}
+                    </text>
+                  )}
                 </g>
               ))}
 
@@ -376,7 +412,7 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
                     shape={shapeOf(p.u)}
                     cx={sx(p.x)}
                     cy={sy(p.y)}
-                    r={hoverKey === p.key ? 6.8 : 4.6}
+                    r={hoverKey === p.key ? (narrow ? 8.5 : 6.8) : (narrow ? 5.8 : 4.6)}
                     fill={brandColor(p.brand)}
                     hollow={!p.certain}
                     selected={p.id === selectedId}

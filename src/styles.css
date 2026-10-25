@@ -384,16 +384,16 @@ tbody tr.selected {
   box-shadow: inset 3px 0 0 var(--court-2);
 }
 tbody tr:last-child td { border-bottom: 0; }
-thead th:nth-child(2) { width: 106px; }
-thead th:nth-child(3) { width: 62px; }
-thead th:nth-child(4) { width: 58px; }
-thead th:nth-child(5),
-thead th:nth-child(6) { width: 64px; }
-thead th:nth-child(7) { width: 64px; }
-html[lang="en"] thead th { letter-spacing: 0.07em; }
-html[lang="en"] thead th:nth-child(5),
-html[lang="en"] thead th:nth-child(6) { width: 96px; }
-html[lang="en"] thead th:nth-child(7) { width: 78px; }
+.table-card thead th:nth-child(2) { width: 106px; }
+.table-card thead th:nth-child(3) { width: 62px; }
+.table-card thead th:nth-child(4) { width: 58px; }
+.table-card thead th:nth-child(5),
+.table-card thead th:nth-child(6) { width: 64px; }
+.table-card thead th:nth-child(7) { width: 64px; }
+html[lang="en"] .table-card thead th { letter-spacing: 0.07em; }
+html[lang="en"] .table-card thead th:nth-child(5),
+html[lang="en"] .table-card thead th:nth-child(6) { width: 96px; }
+html[lang="en"] .table-card thead th:nth-child(7) { width: 78px; }
 .c-model { min-width: 168px; width: auto; }
 .model { font-size: 14px; font-weight: 680; line-height: 1.3; letter-spacing: -0.005em; }
 .model-sub {
@@ -408,11 +408,11 @@ html[lang="en"] thead th:nth-child(7) { width: 78px; }
 }
 .model-sub .id { color: #a3a9b4; font-variant-numeric: tabular-nums; }
 .brand-inline { display: none; }
-thead th:nth-child(3),
-thead th:nth-child(4),
-thead th:nth-child(5),
-thead th:nth-child(6),
-thead th:nth-child(7) { text-align: center; }
+.table-card thead th:nth-child(3),
+.table-card thead th:nth-child(4),
+.table-card thead th:nth-child(5),
+.table-card thead th:nth-child(6),
+.table-card thead th:nth-child(7) { text-align: center; }
 .c-brand .brand { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
 .c-brand { width: 106px; }
 .c-year { width: 62px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -767,17 +767,17 @@ button.link:hover { text-decoration: underline; }
   .toolbar { padding: 10px; gap: 8px; }
   .search-field { flex-basis: 100%; }
   .count { margin-left: 0; }
-  thead th { font-size: 9.5px; letter-spacing: 0.04em; }
-  thead th:nth-child(5),
-  thead th:nth-child(6) { width: 92px; }
+  .table-card thead th { font-size: 9.5px; letter-spacing: 0.04em; }
+  .table-card thead th:nth-child(5),
+  .table-card thead th:nth-child(6) { width: 92px; }
   .c-grade { width: 92px; }
   .c-year, .c-est, .c-brand, .c-mvp { display: none; }
-  thead th:nth-child(2),
-  thead th:nth-child(3),
-  thead th:nth-child(4),
-  thead th:nth-child(7) { display: none; }
+  .table-card thead th:nth-child(2),
+  .table-card thead th:nth-child(3),
+  .table-card thead th:nth-child(4),
+  .table-card thead th:nth-child(7) { display: none; }
   .brand-inline { display: inline; color: #8a91a0; }
-  .plot-scroll svg { min-width: 680px; }
+  .chart .plot-scroll svg { min-width: 680px; }
   .methods { padding: 20px 16px 24px; border-radius: 14px; }
   .methods-head { flex-direction: column-reverse; }
   .methods-head h1 { font-size: 22px; }
@@ -855,6 +855,8 @@ button.link:hover { text-decoration: underline; }
   border-radius: 8px;
 }
 .cmp-frow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; }
+.cmp-group { display: flex; align-items: center; gap: 8px; }
+.cmp-checks { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .cmp-flabel { min-width: 28px; font-size: 9.5px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: #98a0ad; }
 .cmp-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .cmp-chip {
@@ -880,11 +882,11 @@ button.link:hover { text-decoration: underline; }
 
 .cmp-chartcard { margin-top: 12px; padding: 10px 12px 6px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .cmp-chart-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
-.cmp-swipe { display: none; font-size: 10.5px; color: #98a0ad; }
 .cmp-count { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .cmp-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 10.5px; color: var(--muted); }
 .cmp-legend .k { display: inline-flex; align-items: center; gap: 4px; }
 .cmp-shapes { gap: 8px; }
+.cmp-legend .fitkey { color: #7d8896; font-variant-numeric: tabular-nums; }
 .cmp-shape { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
 .cmp-chartcard .plot-scroll svg { width: 100%; height: auto; display: block; }
 
@@ -967,14 +969,26 @@ button.link:hover { text-decoration: underline; }
 
 @media (max-width: 720px) {
   .cmp-head h1 { font-size: 21px; }
-  .cmp-swipe { display: inline; }
   .cmp-stats { grid-template-columns: repeat(2, 1fr); }
   .cmp-stat { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .cmp-stat:nth-child(2n) { border-right: 0; }
   .cmp-stat:nth-last-child(-n + 2) { border-bottom: 0; }
-  .cmp-chartcard .plot-scroll svg { min-width: 760px; }
+  .cmp-table { font-size: 11.5px; }
+  .cmp-table th, .cmp-table td { padding: 6px 8px; }
+  .cmp-table th:nth-child(2),
+  .cmp-table td:nth-child(2) { display: none; }
+  .cmp-chip { min-height: 28px; padding: 5px 9px; font-size: 12px; }
+  .cmp-legend { gap: 8px; font-size: 10px; }
+  .cmp-picked-open { width: 100%; margin-left: 0; }
   .cmp-filters { padding: 10px; }
-  .cmp-search { max-width: none; flex-basis: 100%; }
+  .cmp-frow { flex-direction: column; align-items: stretch; gap: 8px; }
+  .cmp-group { justify-content: space-between; flex-wrap: wrap; }
+  .cmp-group .seg { flex-shrink: 1; max-width: 100%; }
+  .cmp-group .seg button { white-space: normal; }
+  .cmp-group .cmp-chips { flex: 1 1 auto; justify-content: flex-end; }
+  .cmp-checks { justify-content: space-between; }
+  .cmp-search { max-width: none; flex-basis: auto; width: 100%; }
+  .cmp-table th:nth-child(1) { width: auto; }
 }
 
 @media (max-width: 480px) {
