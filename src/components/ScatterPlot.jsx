@@ -1,9 +1,9 @@
-﻿import { useMemo } from 'react'
+import { useMemo } from 'react'
 import { displayName } from '../i18n.js'
 
-const W = 760
-const H = 420
-const M = { l: 58, r: 24, t: 24, b: 46 }
+const W = 780
+const H = 430
+const M = { l: 56, r: 26, t: 48, b: 50 }
 
 function extent(values, pad = 0.05) {
   const min = Math.min(...values)
@@ -55,37 +55,39 @@ export default function ScatterPlot({ estimates, selectedId, onSelect, t, lang }
       <div className="chart-head">
         <h2>{t.chart.title} <span className="muted">{t.chart.subtitle}</span></h2>
         <div className="legend">
-          <span><i className="dot grade-a" /> A</span>
-          <span><i className="dot grade-b" /> B</span>
+          <span className="k"><i className="lg-dot grade-a" /> A</span>
+          <span className="k"><i className="lg-dot grade-b" /> B</span>
           <span className="muted">{t.chart.note}</span>
         </div>
       </div>
+      <div className="plot-scroll">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t.chart.aria}>
-        <rect x={M.l} y={M.t} width={W - M.l - M.r} height={H - M.t - M.b} className="plot-bg" />
+        <text x={M.l} y={M.t - 16} className="axis">↑ {t.chart.yShort}</text>
+        <rect x={M.l} y={M.t} width={W - M.l - M.r} height={H - M.t - M.b} rx="8" className="plot-bg" />
         {ticks(xd).map((v) => (
           <g key={`x-${v}`}>
             <line x1={x(v)} x2={x(v)} y1={M.t} y2={H - M.b} className="grid" />
-            <text x={x(v)} y={H - M.b + 18} textAnchor="middle" className="tick">{v.toFixed(1)}</text>
+            <text x={x(v)} y={H - M.b + 17} textAnchor="middle" className="tick">{v.toFixed(1)}</text>
           </g>
         ))}
         {ticks(yd).map((v) => (
           <g key={`y-${v}`}>
             <line x1={M.l} x2={W - M.r} y1={y(v)} y2={y(v)} className="grid" />
-            <text x={M.l - 8} y={y(v) + 4} textAnchor="end" className="tick">{v.toFixed(1)}</text>
+            <text x={M.l - 9} y={y(v) + 3.5} textAnchor="end" className="tick">{v.toFixed(1)}</text>
           </g>
         ))}
         {points.map((p) => (
-          <g key={p.id} className={p.id === selectedId ? 'point selected' : 'point'} onClick={() => onSelect(p.id)}>
+          <g key={p.id} className={p.id === selectedId ? 'pt selected' : 'pt'} onClick={() => onSelect(p.id)}>
             <title>{t.chart.tooltip(p.name, p.id, p.u, p.x.toFixed(1), p.sx.toFixed(1), p.y.toFixed(2), p.sy.toFixed(2))}</title>
-            <line x1={x(p.x - p.sx)} x2={x(p.x + p.sx)} y1={y(p.y)} y2={y(p.y)} className="err" />
-            <line x1={x(p.x)} x2={x(p.x)} y1={y(p.y - p.sy)} y2={y(p.y + p.sy)} className="err" />
-            <circle cx={x(p.x)} cy={y(p.y)} r={5} className={`dot grade-${p.grade.toLowerCase()}`} />
+            <line x1={x(p.x - p.sx)} x2={x(p.x + p.sx)} y1={y(p.y)} y2={y(p.y)} className="whisker" />
+            <line x1={x(p.x)} x2={x(p.x)} y1={y(p.y - p.sy)} y2={y(p.y + p.sy)} className="whisker" />
+            {p.id === selectedId && <circle cx={x(p.x)} cy={y(p.y)} r="9" className="ring" />}
+            <circle cx={x(p.x)} cy={y(p.y)} r="5" className={`pdot grade-${p.grade.toLowerCase()}`} />
           </g>
         ))}
-        <text x={(M.l + W - M.r) / 2} y={H - 8} textAnchor="middle" className="axis">{t.chart.x}</text>
-        <text x={14} y={(M.t + H - M.b) / 2} textAnchor="middle" transform={`rotate(-90 14 ${(M.t + H - M.b) / 2})`} className="axis">{t.chart.y}</text>
+        <text x={W - M.r} y={H - 14} textAnchor="end" className="axis">{t.chart.xShort} →</text>
       </svg>
+      </div>
     </section>
   )
 }
-

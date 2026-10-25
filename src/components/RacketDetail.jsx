@@ -1,4 +1,3 @@
-﻿import GradeBadge from './GradeBadge.jsx'
 import { displayName, secondaryName, translateNote } from '../i18n.js'
 
 const fmt = (v, digits = 1) => (v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(digits))
@@ -10,19 +9,19 @@ function firstSd(axis) {
   return first ? first.sd : null
 }
 
-function RangeBar({ q05, value, q95 }) {
+function Ruler({ q05, value, q95 }) {
   if (q05 == null || q95 == null || value == null) return null
   const lo = Math.min(q05, q95)
   const hi = Math.max(q05, q95)
   const span = hi - lo || 1
   const pct = (x) => Math.max(0, Math.min(100, ((x - lo) / span) * 100))
   return (
-    <div className="range" aria-hidden="true">
-      <div className="range-track">
-        <div className="range-fill" style={{ left: `${pct(lo)}%`, width: `${Math.max(2, pct(hi) - pct(lo))}%` }} />
-        <div className="range-point" style={{ left: `${pct(value)}%` }} />
+    <div className="ruler" aria-hidden="true">
+      <div className="ruler-track">
+        <div className="ruler-fill" style={{ left: `${pct(lo)}%`, width: `${Math.max(2, pct(hi) - pct(lo))}%` }} />
+        <div className="ruler-mark" style={{ left: `${pct(value)}%` }} />
       </div>
-      <div className="range-ticks"><span>{fmt(lo)}</span><span>{fmt(hi)}</span></div>
+      <div className="ruler-ticks"><span>{fmt(lo)}</span><span>{fmt(hi)}</span></div>
     </div>
   )
 }
@@ -39,7 +38,7 @@ function URows({ byU, unit, t }) {
             <span className="muted"> ± {fmt(v.sd)} {unit}</span>
             {!v.certain && <span className="tag">{t.detail.insufficient}</span>}
           </div>
-          <RangeBar q05={v.q05} value={v.value} q95={v.q95} />
+          <Ruler q05={v.q05} value={v.value} q95={v.q95} />
           <div className="u-meta">{t.detail.interval} {fmt(v.q05)}–{fmt(v.q95)} · n={v.n_obs ?? 0}</div>
         </div>
       ))}
@@ -54,6 +53,21 @@ function Spec({ label, value }) {
     <div className="spec">
       <dt>{label}</dt>
       <dd>{text}</dd>
+    </div>
+  )
+}
+
+function GradeTile({ label, axis, t, noEstimateShort }) {
+  const g = axis?.grade
+  const n = axis?.independent_sources ?? 0
+  const title = g ? t.gradeTitle(n, firstSd(axis)) : noEstimateShort
+  return (
+    <div className="grade-tile" title={title}>
+      <span className="gt-label">{label}</span>
+      <span className="gt-row">
+        <span className={`gt-letter l-${g ? g.toLowerCase() : 'x'}`}>{g || '—'}</span>
+        <span className="gt-sub">{g ? t.detail.sourcesShort(n) : noEstimateShort}</span>
+      </span>
     </div>
   )
 }
@@ -74,7 +88,12 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
       <div className="detail-head">
         <div>
           <h2>{name}</h2>
-          <p className="muted">{other} · #{racket.id} · {racket.brand}</p>
+          <p className="detail-meta">
+            {other && <><span>{other}</span><span className="sep">·</span></>}
+            <span className="id">#{racket.id}</span>
+            <span className="sep">·</span>
+            <span>{racket.brand}</span>
+          </p>
         </div>
         <div className="detail-tags">
           {racket.mvp && <span className="mvp">{t.detail.mvp}</span>}
@@ -82,9 +101,9 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
         </div>
       </div>
 
-      <div className="grades">
-        <div><span className="muted">{t.detail.swingweight}</span> <GradeBadge grade={sw?.grade} sources={sw?.independent_sources} sd={firstSd(sw)} titleFn={t.gradeTitle} /></div>
-        <div><span className="muted">{t.detail.stiffness}</span> <GradeBadge grade={st?.grade} sources={st?.independent_sources} sd={firstSd(st)} titleFn={t.gradeTitle} /></div>
+      <div className="grade-tiles">
+        <GradeTile label={t.detail.swingweight} axis={sw} t={t} noEstimateShort={t.detail.noEstimateShort} />
+        <GradeTile label={t.detail.stiffness} axis={st} t={t} noEstimateShort={t.detail.noEstimateShort} />
       </div>
 
       {!estimate && <p className="note">{t.detail.noEstimate}</p>}
@@ -115,7 +134,7 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
               <span className="muted"> ± {fmt(st.static_flex.sd, 2)} {t.units.flex}</span>
               {!st.static_flex.certain && <span className="tag">{t.detail.insufficient}</span>}
             </div>
-            <RangeBar q05={st.static_flex.q05} value={st.static_flex.value} q95={st.static_flex.q95} />
+            <Ruler q05={st.static_flex.q05} value={st.static_flex.value} q95={st.static_flex.q95} />
             <p className="u-meta">{t.detail.interval} {fmt(st.static_flex.q05, 2)}–{fmt(st.static_flex.q95, 2)} · n={st.static_flex.n_bg ?? 0}</p>
           </div>
         ) : (
@@ -141,7 +160,7 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
         </dl>
       </section>
 
-      {(sw?.links?.length > 0 || st?.links?.length > 0) ? (
+      {((sw?.links?.length > 0) || (st?.links?.length > 0)) ? (
         <section>
           <h3>{t.detail.links}</h3>
           <ul className="links">
@@ -163,7 +182,7 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
         <section>
           <h3>{t.detail.relations}</h3>
           {parent && (
-            <p>
+            <p className="note">
               {t.detail.parentPrefix}{' '}
               <button className="link" onClick={() => onSelect(parent.id)}>#{parent.id} {displayName(parent, lang)}</button>
               {t.detail.parentSuffix}
@@ -181,4 +200,3 @@ export default function RacketDetail({ racket, estimate, allRackets, onSelect, t
     </aside>
   )
 }
-

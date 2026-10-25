@@ -21,6 +21,30 @@ function matches(racket, query) {
     .some((x) => String(x).toLowerCase().includes(q))
 }
 
+const GLYPH_DOTS = [
+  [26, 104], [48, 78], [70, 90], [94, 56], [118, 70], [166, 62], [54, 122],
+  [88, 128], [128, 112], [160, 98], [178, 76], [34, 66], [106, 96], [152, 126],
+]
+
+function CoordinateGlyph() {
+  return (
+    <svg className="glyph" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
+      <rect x="0.5" y="0.5" width="199" height="159" rx="14" className="glyph-frame" />
+      {[40, 80, 120].map((v) => (
+        <line key={`v${v}`} x1={v} y1="12" x2={v} y2="148" className="gline" />
+      ))}
+      {[40, 80, 120].map((v) => (
+        <line key={`h${v}`} x1="12" y1={v} x2="188" y2={v} className="gline" />
+      ))}
+      {GLYPH_DOTS.map(([cx, cy], i) => (
+        <circle key={i} cx={cx} cy={cy} r="2.6" className="g-dot" />
+      ))}
+      <circle cx="142" cy="42" r="9" className="g-halo" />
+      <circle cx="142" cy="42" r="4.2" className="g-dot sel" />
+    </svg>
+  )
+}
+
 export default function App() {
   const [rackets, setRackets] = useState(null)
   const [estimates, setEstimates] = useState(null)
@@ -119,91 +143,155 @@ export default function App() {
     return <div className="state">{t.loading}</div>
   }
 
+  const isMain = view !== 'methods'
+
   return (
-    <div className="app">
-      <header className="site-header">
-        <div>
-          <h1>RacketSense</h1>
-          <p className="subtitle">{t.subtitle}</p>
-        </div>
-        <div className="header-right">
-          <button className="nav-link" onClick={() => setView(view === 'methods' ? 'main' : 'methods')}>
-            {view === 'methods' ? t.methods.back : t.methods.title}
-          </button>
-          <div className="version">{t.version(rackets.meta.generated_on)}</div>
-          <div className="lang-toggle" role="group" aria-label={t.langLabel}>
-            <button className={lang === 'zh' ? 'active' : ''} onClick={() => setLang('zh')}>中文</button>
-            <button className={lang === 'en' ? 'active' : ''} onClick={() => setLang('en')}>EN</button>
+    <>
+      <header className="topbar">
+        <div className="topbar-inner">
+          <a className="brand" href="./">
+            <span className="brand-mark" aria-hidden="true">RS</span>
+            <span className="brand-text">
+              <span className="brand-name">RacketSense</span>
+              <span className="brand-sub">racket reference</span>
+            </span>
+          </a>
+          <nav className="nav" aria-label={t.nav.library}>
+            <button
+              className={isMain ? 'active' : ''}
+              aria-current={isMain ? 'page' : undefined}
+              onClick={() => setView('main')}
+            >
+              {t.nav.library}
+            </button>
+            <button
+              className={!isMain ? 'active' : ''}
+              aria-current={!isMain ? 'page' : undefined}
+              onClick={() => setView('methods')}
+            >
+              {t.nav.methods}
+            </button>
+          </nav>
+          <div className="topbar-right">
+            <span className="ver">{t.version(rackets.meta.generated_on)}</span>
+            <div className="lang" role="group" aria-label={t.langLabel}>
+              <button className={lang === 'zh' ? 'active' : ''} aria-pressed={lang === 'zh'} onClick={() => setLang('zh')}>中文</button>
+              <button className={lang === 'en' ? 'active' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="disclaimer" role="note">
-        <strong>{t.disclaimerTitle}</strong>
-        <span>{t.disclaimerBody}</span>
-      </div>
+      <main className="app">
+        {isMain ? (
+          <>
+            <section className="hero">
+              <div className="hero-main">
+                <div className="hero-eyebrow">
+                  <span>{t.hero.eyebrow}</span>
+                  <span className="dotline" aria-hidden="true" />
+                  <span className="hero-date">{t.hero.updated(rackets.meta.generated_on)}</span>
+                </div>
+                <h1>{t.hero.title}</h1>
+                <p className="hero-lead">{t.hero.lead}</p>
+                <ul className="hero-stats">
+                  <li><b>{rackets.meta.counts.rackets}</b><span>{t.hero.stats.models}</span></li>
+                  <li><b>{rackets.meta.counts.mvp}</b><span>{t.hero.stats.mvp}</span></li>
+                  <li><b>A · B · C</b><span>{t.hero.stats.grades}</span></li>
+                  <li><b>{rackets.meta.generated_on}</b><span>{t.hero.stats.updated}</span></li>
+                </ul>
+                <p className="hero-notice" role="note">
+                  <strong>{t.disclaimerTitle}</strong>
+                  <span>{t.disclaimerBody}</span>
+                </p>
+              </div>
+              <CoordinateGlyph />
+            </section>
 
-      {view === 'methods' ? (
-        <MethodsPage
-          t={t}
-          validation={estimates.meta.validation}
-          generatedOn={rackets.meta.generated_on}
-          onBack={() => setView('main')}
-        />
-      ) : (
-        <>
-      <section className="controls" aria-label="filters">
-        <input
-          className="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t.search}
-          aria-label={t.search}
-        />
-        <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label={t.allBrands}>
-          <option value="all">{t.allBrands}</option>
-          {brands.map((b) => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-        <select value={grade} onChange={(e) => setGrade(e.target.value)} aria-label={t.allGrades}>
-          <option value="all">{t.allGrades}</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-        </select>
-        <label className="check"><input type="checkbox" checked={hasEstimate} onChange={(e) => setHasEstimate(e.target.checked)} /> {t.onlyEstimate}</label>
-        <label className="check"><input type="checkbox" checked={mvpOnly} onChange={(e) => setMvpOnly(e.target.checked)} /> {t.onlyMvp}</label>
-        <span className="count">{filtered.length} / {rackets.rackets.length}</span>
-      </section>
+            <section className="toolbar" aria-label="filters">
+              <label className="search-field">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M20 20l-3.6-3.6" />
+                </svg>
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={t.search}
+                  aria-label={t.search}
+                />
+              </label>
+              <div className="select-wrap">
+                <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label={t.allBrands}>
+                  <option value="all">{t.allBrands}</option>
+                  {brands.map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
+              <div className="seg" role="group" aria-label={t.allGrades}>
+                {['all', 'A', 'B', 'C'].map((g) => (
+                  <button
+                    key={g}
+                    className={grade === g ? 'active' : ''}
+                    aria-pressed={grade === g}
+                    onClick={() => setGrade(g)}
+                  >
+                    {g === 'all' ? t.gradeAll : g}
+                  </button>
+                ))}
+              </div>
+              <label className="chip-toggle">
+                <input type="checkbox" checked={hasEstimate} onChange={(e) => setHasEstimate(e.target.checked)} />
+                <span>{t.onlyEstimate}</span>
+              </label>
+              <label className="chip-toggle">
+                <input type="checkbox" checked={mvpOnly} onChange={(e) => setMvpOnly(e.target.checked)} />
+                <span>{t.onlyMvp}</span>
+              </label>
+              <span className="count"><strong>{filtered.length}</strong> / {rackets.rackets.length}</span>
+            </section>
 
-      <div className="content">
-        <RacketTable
-          rackets={filtered}
-          estimates={estimates.rackets}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          t={t}
-          lang={lang}
-        />
-        <RacketDetail
-          racket={selected}
-          estimate={selectedEstimate}
-          allRackets={rackets.rackets}
-          onSelect={setSelectedId}
-          t={t}
-          lang={lang}
-        />
-      </div>
+            <div className="content">
+              <section className="table-card">
+                <RacketTable
+                  rackets={filtered}
+                  estimates={estimates.rackets}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  t={t}
+                  lang={lang}
+                />
+              </section>
+              <RacketDetail
+                racket={selected}
+                estimate={selectedEstimate}
+                allRackets={rackets.rackets}
+                onSelect={setSelectedId}
+                t={t}
+                lang={lang}
+              />
+            </div>
 
-      <ScatterPlot estimates={estimates.rackets} selectedId={selectedId} onSelect={setSelectedId} t={t} lang={lang} />
-        </>
-      )}
+            <ScatterPlot estimates={estimates.rackets} selectedId={selectedId} onSelect={setSelectedId} t={t} lang={lang} />
+          </>
+        ) : (
+          <MethodsPage
+            t={t}
+            validation={estimates.meta.validation}
+            generatedOn={rackets.meta.generated_on}
+            onBack={() => setView('main')}
+          />
+        )}
 
-      <footer className="footer">
-        <span>{t.footer.data(rackets.meta.counts.rackets, rackets.meta.counts.mvp, estimates.meta.product_round)}</span>
-        <span>{t.footer.status(estimates.meta.status)}</span>
-      </footer>
-    </div>
+        <footer className="footer">
+          <span>{t.footer.data(rackets.meta.counts.rackets, rackets.meta.counts.mvp, estimates.meta.product_round)}</span>
+          <span>{t.footer.status(estimates.meta.status)}</span>
+        </footer>
+      </main>
+    </>
   )
 }

@@ -38,6 +38,7 @@ export default function MethodsPage({ t, validation, generatedOn, onBack }) {
     <article className="methods">
       <div className="methods-head">
         <div>
+          <span className="eyebrow">RacketSense</span>
           <h1>{m.title}</h1>
           <p className="muted">{m.updated(generatedOn)}</p>
         </div>
