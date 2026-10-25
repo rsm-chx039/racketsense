@@ -3,6 +3,7 @@ import RacketTable from './components/RacketTable.jsx'
 import RacketDetail from './components/RacketDetail.jsx'
 import ScatterPlot from './components/ScatterPlot.jsx'
 import MethodsPage from './components/MethodsPage.jsx'
+import CompareView from './components/CompareView.jsx'
 import { copy } from './i18n.js'
 
 const BASE = import.meta.env.BASE_URL || '/'
@@ -66,7 +67,9 @@ export default function App() {
   })
   const [view, setView] = useState(() => {
     try {
-      return new URLSearchParams(window.location.search).get('view') === 'methods' ? 'methods' : 'main'
+      const v = new URLSearchParams(window.location.search).get('view')
+      if (v === 'methods' || v === 'compare') return v
+      return 'main'
     } catch {
       return 'main'
     }
@@ -91,19 +94,20 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
-    document.title = view === 'methods' ? `${t.methods.title} — RacketSense` : t.pageTitle
+    const titles = { methods: t.methods.title, compare: t.compare.title }
+    document.title = titles[view] ? `${titles[view]} — RacketSense` : t.pageTitle
     try {
       localStorage.setItem('rs-lang', lang)
       const url = new URL(window.location.href)
       if (lang === 'en') url.searchParams.set('lang', 'en')
       else url.searchParams.delete('lang')
-      if (view === 'methods') url.searchParams.set('view', 'methods')
-      else url.searchParams.delete('view')
+      if (view === 'main') url.searchParams.delete('view')
+      else url.searchParams.set('view', view)
       window.history.replaceState({}, '', url)
     } catch {
       /* ignore */
     }
-  }, [lang, view, t.pageTitle, t.methods.title])
+  }, [lang, view, t.pageTitle, t.methods.title, t.compare.title])
 
   const brands = useMemo(
     () => (rackets ? [...new Set(rackets.rackets.map((r) => r.brand).filter(Boolean))].sort() : []),
@@ -143,7 +147,7 @@ export default function App() {
     return <div className="state">{t.loading}</div>
   }
 
-  const isMain = view !== 'methods'
+  const isMain = view !== 'methods' && view !== 'compare'
 
   return (
     <>
@@ -158,15 +162,22 @@ export default function App() {
           </a>
           <nav className="nav" aria-label={t.nav.library}>
             <button
-              className={isMain ? 'active' : ''}
-              aria-current={isMain ? 'page' : undefined}
+              className={view === 'main' ? 'active' : ''}
+              aria-current={view === 'main' ? 'page' : undefined}
               onClick={() => setView('main')}
             >
               {t.nav.library}
             </button>
             <button
-              className={!isMain ? 'active' : ''}
-              aria-current={!isMain ? 'page' : undefined}
+              className={view === 'compare' ? 'active' : ''}
+              aria-current={view === 'compare' ? 'page' : undefined}
+              onClick={() => setView('compare')}
+            >
+              {t.nav.compare}
+            </button>
+            <button
+              className={view === 'methods' ? 'active' : ''}
+              aria-current={view === 'methods' ? 'page' : undefined}
               onClick={() => setView('methods')}
             >
               {t.nav.methods}
@@ -278,6 +289,20 @@ export default function App() {
 
             <ScatterPlot estimates={estimates.rackets} selectedId={selectedId} onSelect={setSelectedId} t={t} lang={lang} />
           </>
+        ) : view === 'compare' ? (
+          <CompareView
+            rackets={rackets.rackets}
+            estimates={estimates.rackets}
+            meta={estimates.meta}
+            lang={lang}
+            t={t}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onOpenDetail={(id) => {
+              setSelectedId(id)
+              setView('main')
+            }}
+          />
         ) : (
           <MethodsPage
             t={t}
