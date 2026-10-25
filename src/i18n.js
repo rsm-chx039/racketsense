@@ -1,0 +1,329 @@
+export const copy = {
+  zh: {
+    pageTitle: 'RacketSense — 羽毛球拍相对位置参考库',
+    subtitle: '羽毛球拍相对位置参考库 · 硬度 × 挥重',
+    version: (d) => `v1 参考版 · ${d}`,
+    disclaimerTitle: '参考版 · 未经独立验证',
+    disclaimerBody:
+      '数值来自相对比较模型的估计，带 90% 区间与证据等级；不是已验证排名，也不能替代试打。主观硬度一律显示“证据不足”。',
+    loading: '正在加载数据…',
+    loadError: '数据加载失败',
+    loadHint: '请确认 public/data/rackets.json 与 estimates.json 已生成（python scripts/build_public_data.py）。',
+    search: '搜索型号 / 别名 / id',
+    allBrands: '全部品牌',
+    allGrades: '全部等级',
+    onlyEstimate: '只看有估计',
+    onlyMvp: '只看 MVP',
+    langLabel: '语言',
+    table: {
+      model: '型号',
+      brand: '品牌',
+      year: '年份',
+      mvp: 'MVP',
+      swingweight: '挥重',
+      stiffness: '硬度',
+      estimate: '估计',
+      yes: '有',
+      no: '暂无',
+      empty: '没有符合筛选条件的型号。',
+      swTitle: '挥重轴证据等级',
+      stTitle: '硬度（静态柔度）轴证据等级',
+      estTitle: '是否有模型估计',
+    },
+    detail: {
+      pick: '从左侧总表选择一个型号。',
+      mvp: 'MVP',
+      secondary: '次一级',
+      swingweight: '挥重',
+      headheavy: '头重感',
+      stiffness: '硬度',
+      official: '官方参数',
+      links: '出处链接',
+      relations: '型号关系',
+      noEstimate: '该型号没有模型估计（非 MVP 或产品层未覆盖），只显示官方参数。',
+      noEstimateShort: '暂无估计。',
+      insufficient: '证据不足',
+      interval: '90% 区间',
+      subjective: '主观硬度：证据不足（不输出数值）',
+      officialLabel: '官方标称',
+      parentPrefix: '次一级，挂在',
+      parentSuffix: '下。',
+      noLinks: '暂无公开出处链接。',
+      bgOnly: '只靠 Badminton Guide 支撑；硬度轴封顶 B。',
+      uAssumed: '该型号未登记 U 档，按参考档 4U 展示。',
+      headheavyNote: '与挥重同源，不单独计证据',
+      noDisplay: '没有可展示的估计。',
+    },
+    specs: {
+      series: '系列',
+      year: '年份',
+      u: 'U 档',
+      grip: '手柄',
+      shaft: '中杆 mm',
+      tension: '最大磅数',
+      balance: '平衡点',
+      swingweight: '挥重（官方）',
+      flex: '官方硬度',
+      playBalance: '使用状态平衡点',
+      playCondition: '使用状态说明',
+    },
+    chart: {
+      title: '坐标图',
+      subtitle: '挥重 × 静态柔度',
+      note: '点带 ±1 SD 误差；横轴越大越重，纵轴越小越硬',
+      empty: '没有同时具备挥重与硬度估计的型号。',
+      x: '挥重（kg·cm²，首选 U 档）',
+      y: '静态柔度（越小越硬）',
+      aria: '挥重与静态柔度坐标图',
+      tooltip: (name, id, u, x, sx, y, sy) =>
+        `${name} #${id} · ${u} 挥重 ${x}±${sx} · 硬度 ${y}±${sy}`,
+    },
+    footer: {
+      data: (r, m, round) => `数据：主表 ${r} 行 / MVP ${m} 支；产品层 ${round}。`,
+      status: (s) => `状态：${s}。出处链接见详情页；方法页与完整说明待补。`,
+    },
+    gradeTitle: (n, sd) => `独立来源 ${n}${sd != null ? `；SD ${sd}` : ''}`,
+    units: { swingweight: 'kg·cm²', headheavy: 'mm', flex: 'BG 柔度当量' },
+    methods: {
+      title: '方法 / 数据说明',
+      back: '返回总表',
+      updated: (d) => `数据更新：${d}`,
+      intro: [
+        'RacketSense 是一个羽毛球拍相对位置参考库：用成对比较和仪器读数，估计球拍在「挥重 × 硬度」两轴上的相对位置。',
+        'v1 覆盖主表 774 行、100 支 MVP；MVP 给估计值、90% 区间、证据等级与出处，其余只列官方参数。它不是厂商参数表，也不是试打的替代品。',
+      ],
+      why: {
+        h: '为什么不能直接比官方参数',
+        p: [
+          '不同品牌的中杆硬度分档、平衡点/挥重测量条件（空拍 / 有底 / 上线 / 手胶）、U 档和穿线磅数都不同。把 7 档和 4 档直接对齐，会把量纲差当成性能差。',
+          '所以本库只用同一来源内部可比的成对比较（A 比 B 硬 / 重），再用模型把不同来源、U 档、条件接到同一潜变量上。',
+        ],
+      },
+      data: {
+        h: '数据与模型',
+        p: [
+          '边来自论坛、评测、Reddit 与仪器表；每条边带来源、条件、方向。留出按 source_key 整组进行，避免同一作者或同一仪器泄漏。',
+          '两轴分开：挥重侧（挥重 + 头重感，二元正态，ρ≈0.94）、硬度侧（静态柔度 + 主观文本，ρ≈0.37）。估计是后验均值，区间是 90% 分位；定准阈值：挥重 SD≤1.5、头重感 SD≤3.0 mm、静态柔度 SD≤0.23 BG 单位。',
+        ],
+      },
+      grades: {
+        h: '证据等级',
+        headers: ['等级', '规则', '页面表现'],
+        rows: [
+          ['A', '该轴 ≥2 个独立来源且估计定准', '估计值 + 区间 + 出处'],
+          ['B', '1 个独立来源，或估计未定准；BG-only 的硬度轴封顶 B', '估计值 + “证据不足” + 出处'],
+          ['C', '没有独立来源，或该轴没有估计', '只显示官方参数'],
+        ],
+        note: '独立来源按 source_key 去重，不等于独立人工金标。',
+      },
+      limits: {
+        h: '已知局限',
+        single: (st, sw) => `单来源依赖：硬度去掉 Badminton Guide 后剩 ${st}/100，挥重去掉 L.C. 后剩 ${sw}/100；两轴的 single_source_gate_robust 都是 false。`,
+        subjective: '主观硬度：0 支定准；v1 一律显示“证据不足”，不输出数值。',
+        gold: '没有独立人工金标：status = not_ready_for_validated_ranking；不能对外宣称“已验证排名”。',
+        coverage: (st, sw) => `独立证据覆盖：硬度 ${st}/100、挥重 ${sw}/100（门槛 80/100）。`,
+        official: '官方参数只作展示，不直接进模型；跨品牌官方分档不可直接比较。',
+      },
+      validation: {
+        h: '留出验证',
+        p: '这是探索性来源留出，不是独立金标。主配置 fractional / text_scale=1，按 source_key 整源留出，组级自助 B=2000。',
+        headers: ['轴', '组数', '正确率 [95% 区间]', 'Brier'],
+        note: '硬度仪器层（只有 Badminton Guide）约 0.512，接近掷硬币：BG 静态柔度与球友说的“中杆硬”不是同一构念。',
+      },
+      not: {
+        h: '这不是什么',
+        p: [
+          '不是已验证排名，也不是两轴的确定性排序；',
+          '不是跨品牌官方参数的对照表；',
+          '不能替代试打，也不构成购买建议。',
+        ],
+      },
+      repro: {
+        h: '复现',
+        p: '主表与产品层都可由仓库脚本重建；公开 JSON 记录输入哈希与产品轮次。',
+        commands: [
+          'python manage.py rebuild',
+          'python manage.py verify',
+          'python pipeline/validate_m2.py',
+          'python scripts/build_public_data.py',
+          'npm run build',
+        ],
+      },
+    },
+  },
+  en: {
+    pageTitle: 'RacketSense — badminton racket relative-position reference',
+    subtitle: 'Badminton racket relative-position reference · stiffness × swingweight',
+    version: (d) => `v1 reference · ${d}`,
+    disclaimerTitle: 'Reference edition · not independently validated',
+    disclaimerBody:
+      'Values are model estimates with 90% intervals and evidence grades. They are NOT a validated ranking and do not replace play-testing. Subjective stiffness is always shown as insufficient evidence.',
+    loading: 'Loading data…',
+    loadError: 'Failed to load data',
+    loadHint: 'Make sure public/data/rackets.json and estimates.json exist (python scripts/build_public_data.py).',
+    search: 'Search model / alias / id',
+    allBrands: 'All brands',
+    allGrades: 'All grades',
+    onlyEstimate: 'With estimate',
+    onlyMvp: 'MVP only',
+    langLabel: 'Language',
+    table: {
+      model: 'Model',
+      brand: 'Brand',
+      year: 'Year',
+      mvp: 'MVP',
+      swingweight: 'Swingweight',
+      stiffness: 'Stiffness',
+      estimate: 'Estimate',
+      yes: 'Yes',
+      no: 'None',
+      empty: 'No rackets match the filters.',
+      swTitle: 'Evidence grade on the swingweight axis',
+      stTitle: 'Evidence grade on the stiffness (static flex) axis',
+      estTitle: 'Whether a model estimate exists',
+    },
+    detail: {
+      pick: 'Select a racket from the table.',
+      mvp: 'MVP',
+      secondary: 'Secondary',
+      swingweight: 'Swingweight',
+      headheavy: 'Head-heaviness',
+      stiffness: 'Stiffness',
+      official: 'Official specs',
+      links: 'Sources',
+      relations: 'Model relations',
+      noEstimate: 'No model estimate for this racket (not an MVP or not covered by the product layer); official specs only.',
+      noEstimateShort: 'No estimate.',
+      insufficient: 'Insufficient evidence',
+      interval: '90% interval',
+      subjective: 'Subjective stiffness: insufficient evidence (no numeric value)',
+      officialLabel: 'Official label',
+      parentPrefix: 'Secondary, listed under',
+      parentSuffix: '.',
+      noLinks: 'No public source links.',
+      bgOnly: 'Supported only by Badminton Guide; stiffness axis is capped at B.',
+      uAssumed: 'No U class recorded; shown at the reference 4U.',
+      headheavyNote: 'Same source as swingweight; not counted as separate evidence',
+      noDisplay: 'No displayable estimate.',
+    },
+    specs: {
+      series: 'Series',
+      year: 'Year',
+      u: 'U class',
+      grip: 'Grip',
+      shaft: 'Shaft mm',
+      tension: 'Max tension',
+      balance: 'Balance',
+      swingweight: 'Swingweight (official)',
+      flex: 'Official flex',
+      playBalance: 'Play-state balance',
+      playCondition: 'Play-state condition',
+    },
+    chart: {
+      title: 'Coordinates',
+      subtitle: 'swingweight × static flex',
+      note: 'Dots carry ±1 SD error bars; right = heavier, lower = stiffer',
+      empty: 'No racket has both swingweight and stiffness estimates.',
+      x: 'Swingweight (kg·cm², preferred U)',
+      y: 'Static flex (lower = stiffer)',
+      aria: 'Swingweight versus static flex scatter plot',
+      tooltip: (name, id, u, x, sx, y, sy) =>
+        `${name} #${id} · ${u} swingweight ${x}±${sx} · stiffness ${y}±${sy}`,
+    },
+    footer: {
+      data: (r, m, round) => `Data: ${r} master rows / ${m} MVP; product round ${round}.`,
+      status: (s) => `Status: ${s}. Source links are on the detail panel; the methods page is pending.`,
+    },
+    gradeTitle: (n, sd) => `Independent sources ${n}${sd != null ? `; SD ${sd}` : ''}`,
+    units: { swingweight: 'kg·cm²', headheavy: 'mm', flex: 'BG flex units' },
+    methods: {
+      title: 'Methods & data',
+      back: 'Back to table',
+      updated: (d) => `Data updated: ${d}`,
+      intro: [
+        'RacketSense is a relative-position reference for badminton rackets. It estimates where a racket sits on two axes — swingweight and stiffness — from pairwise comparisons and instrument readings.',
+        'v1 covers 774 master rows and 100 MVPs. MVPs get estimates, 90% intervals, evidence grades and sources; all other rows list official specs only. It is not a manufacturer spec sheet, and it is not a substitute for play-testing.',
+      ],
+      why: {
+        h: 'Why official specs are not directly comparable',
+        p: [
+          'Brands use different shaft-flex scales and different measurement conditions for balance point and swingweight (empty frame, with base grip, strung, with overgrip), and they differ in U class and string tension. Mapping a 7-level scale onto a 4-level scale would turn a unit difference into a performance difference.',
+          'This library therefore only uses within-source pairwise comparisons (A is stiffer/heavier than B), then maps different sources, U classes and conditions onto a shared latent variable.',
+        ],
+      },
+      data: {
+        h: 'Data and model',
+        p: [
+          'Edges come from forums, reviews, Reddit and instrument tables. Every edge carries its source, condition and direction. Holdout is grouped by source_key so that the same author or instrument cannot leak across train and test.',
+          'The two axes are modelled separately: swingweight side (swingweight + head-heaviness, bivariate normal, ρ≈0.94) and stiffness side (static flex + subjective text, ρ≈0.37). Estimates are posterior means; intervals are 90% quantiles. Certainty thresholds: swingweight SD≤1.5, head-heaviness SD≤3.0 mm, static flex SD≤0.23 BG units.',
+        ],
+      },
+      grades: {
+        h: 'Evidence grades',
+        headers: ['Grade', 'Rule', 'Shown as'],
+        rows: [
+          ['A', 'At least 2 independent sources on this axis and the estimate is certain', 'Estimate + interval + sources'],
+          ['B', 'One independent source, or the estimate is not certain; BG-only stiffness is capped at B', 'Estimate + “insufficient evidence” + sources'],
+          ['C', 'No independent source, or no estimate on this axis', 'Official specs only'],
+        ],
+        note: 'Independent sources are de-duplicated by source_key; this is not an independent human gold standard.',
+      },
+      limits: {
+        h: 'Known limitations',
+        single: (st, sw) => `Single-source dependence: after removing Badminton Guide, stiffness coverage is ${st}/100; after removing L.C., swingweight coverage is ${sw}/100. Both axes have single_source_gate_robust = false.`,
+        subjective: 'Subjective stiffness: 0 rackets are certain; v1 always shows “insufficient evidence” and no numeric value.',
+        gold: 'No independent human gold labels: status = not_ready_for_validated_ranking. We do not claim a validated ranking.',
+        coverage: (st, sw) => `Independent-evidence coverage: stiffness ${st}/100, swingweight ${sw}/100 (gate 80/100).`,
+        official: 'Official specs are shown for reference only and are not fed into the model; official scales are not comparable across brands.',
+      },
+      validation: {
+        h: 'Holdout validation',
+        p: 'This is an exploratory source holdout, not a gold standard. Primary configuration: fractional / text_scale=1, grouped by source_key, group-level bootstrap B=2000.',
+        headers: ['Axis', 'Groups', 'Correct [95% interval]', 'Brier'],
+        note: 'The stiffness instrument stratum (Badminton Guide only) is about 0.512 — close to a coin flip: BG static flex and what players call a “stiff shaft” are not the same construct.',
+      },
+      not: {
+        h: 'What this is not',
+        p: [
+          'It is not a validated ranking or a deterministic ordering on either axis.',
+          'It is not a cross-brand comparison of official specs.',
+          'It does not replace play-testing and is not purchase advice.',
+        ],
+      },
+      repro: {
+        h: 'Reproducibility',
+        p: 'The master table and product layer are rebuilt by repository scripts; the public JSON records input hashes and the product round.',
+        commands: [
+          'python manage.py rebuild',
+          'python manage.py verify',
+          'python pipeline/validate_m2.py',
+          'python scripts/build_public_data.py',
+          'npm run build',
+        ],
+      },
+    },
+  },
+}
+
+export function displayName(racket, lang) {
+  if (!racket) return ''
+  return lang === 'en' ? racket.name_en || racket.name_cn : racket.name_cn || racket.name_en
+}
+
+export function secondaryName(racket, lang) {
+  if (!racket) return ''
+  const primary = displayName(racket, lang)
+  const other = lang === 'en' ? racket.name_cn : racket.name_en
+  return other && other !== primary ? other : ''
+}
+
+const NOTE_MAP = {
+  '没有独立证据，只显示官方参数': 'No independent evidence; official specs only.',
+  '与挥重同源，不单独计证据': 'Same source as swingweight; not counted as separate evidence.',
+  '没有可展示的估计': 'No displayable estimate.',
+}
+
+export function translateNote(note, lang) {
+  if (!note) return ''
+  return lang === 'en' ? NOTE_MAP[note] || note : note
+}
