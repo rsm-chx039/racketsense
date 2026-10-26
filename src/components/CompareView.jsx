@@ -248,26 +248,36 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
 
   return (
     <div className="cmp">
-      <header className="cmp-head">
-        <h1>{c.title}</h1>
-        <p className="cmp-sub">{c.subtitle}</p>
-        <div className="cmp-meta">
-          <span><b>{c.metaRound}</b>{meta?.product_round || '—'}</span>
-          <span><b>{c.metaUpdated}</b>{meta?.generated_on || '—'}</span>
-          <span><b>sha16</b>{String(meta?.master_sha16 || '').slice(0, 12) || '—'}</span>
+      <section className="cmp-hero">
+        <div className="cmp-hero-top">
+          <div>
+            <div className="cmp-eyebrow">
+              <span>RacketSense</span>
+              <span className="dotline" aria-hidden="true" />
+              <span>{c.eyebrow}</span>
+            </div>
+            <h1>{c.title}</h1>
+            <p className="cmp-sub">{c.subtitle}</p>
+          </div>
+          <div className="cmp-meta">
+            <span><b>{c.metaRound}</b>{meta?.product_round || '—'}</span>
+            <span><b>{c.metaUpdated}</b>{meta?.generated_on || '—'}</span>
+            <span><b>sha16</b>{String(meta?.master_sha16 || '').slice(0, 12) || '—'}</span>
+          </div>
         </div>
-      </header>
-
-      <section className="cmp-stats">
-        <div className="cmp-stat"><b>{stats.total}</b><span>{c.stats.total}</span></div>
-        <div className="cmp-stat"><b>{stats.withEst}</b><span>{c.stats.withEst}</span></div>
-        <div className="cmp-stat"><b>{stats.bothA}</b><span>{c.stats.bothA}</span></div>
-        <div className="cmp-stat"><b>{stats.swA}</b><span>{c.stats.swA}</span></div>
-        <div className="cmp-stat"><b>{stats.stA}</b><span>{c.stats.stA}</span></div>
-        <div className="cmp-stat"><b>{stats.officialOnly}</b><span>{c.stats.officialOnly}</span></div>
+        <dl className="cmp-hero-stats">
+          <div><dt>{c.stats.total}</dt><dd>{stats.total}</dd></div>
+          <div><dt>{c.stats.withEst}</dt><dd>{stats.withEst}</dd></div>
+          <div><dt>{c.stats.bothA}</dt><dd>{stats.bothA}</dd></div>
+          <div><dt>{c.stats.swA}</dt><dd>{stats.swA}</dd></div>
+          <div><dt>{c.stats.stA}</dt><dd>{stats.stA}</dd></div>
+          <div><dt>{c.stats.officialOnly}</dt><dd>{stats.officialOnly}</dd></div>
+        </dl>
+        <p className="hero-notice">
+          <strong>{c.noteTitle}</strong>
+          {c.note}
+        </p>
       </section>
-
-      <p className="cmp-note">{c.note}</p>
 
       <nav className="cmp-tabs" aria-label={c.title}>
         <button className={tab === 'chart' ? 'active' : ''} aria-current={tab === 'chart' ? 'page' : undefined} onClick={() => setTab('chart')}>{c.tabs.chart}</button>

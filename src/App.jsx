@@ -268,14 +268,20 @@ export default function App() {
 
             <div className="content">
               <section className="table-card">
-                <RacketTable
-                  rackets={filtered}
-                  estimates={estimates.rackets}
-                  selectedId={selectedId}
-                  onSelect={setSelectedId}
-                  t={t}
-                  lang={lang}
-                />
+                <div className="panel-head">
+                  <span className="panel-title">{t.table.panelTitle}</span>
+                  <span className="panel-hint">{t.table.panelHint}</span>
+                </div>
+                <div className="table-scroll">
+                  <RacketTable
+                    rackets={filtered}
+                    estimates={estimates.rackets}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                    t={t}
+                    lang={lang}
+                  />
+                </div>
               </section>
               <RacketDetail
                 racket={selected}

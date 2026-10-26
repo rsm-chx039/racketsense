@@ -18,6 +18,8 @@ export const copy = {
     nav: { library: '型号库', compare: '横评', methods: '方法说明' },
     compare: {
       title: '挥重地图',
+      eyebrow: '横评 · 参考版',
+      noteTitle: '这是模型估计，不是测量值',
       subtitle: '模型的挥重与头重感估计，按 U 档分开绘制；点的位置是后验均值，不是测量值。',
       metaRound: '产品轮次',
       metaUpdated: '数据日期',
@@ -66,6 +68,8 @@ export const copy = {
       swTitle: '挥重轴证据等级',
       stTitle: '硬度（静态柔度）轴证据等级',
       estTitle: '是否有模型估计',
+      panelTitle: '型号库',
+      panelHint: '按 MVP 优先 · 点选查看详情',
     },
     detail: {
       pick: '从左侧总表选择一个型号。',
@@ -211,6 +215,8 @@ export const copy = {
     nav: { library: 'Library', compare: 'Compare', methods: 'Methods' },
     compare: {
       title: 'Swingweight map',
+      eyebrow: 'Compare · reference',
+      noteTitle: 'Model estimates, not measurements',
       subtitle: 'Model estimates of swingweight and head-heaviness, drawn per U class; positions are posterior means, not measurements.',
       metaRound: 'product round',
       metaUpdated: 'data date',
@@ -259,6 +265,8 @@ export const copy = {
       swTitle: 'Evidence grade on the swingweight axis',
       stTitle: 'Evidence grade on the stiffness (static flex) axis',
       estTitle: 'Whether a model estimate exists',
+      panelTitle: 'Library',
+      panelHint: 'MVP first · select a row for details',
     },
     detail: {
       pick: 'Select a racket from the table.',
