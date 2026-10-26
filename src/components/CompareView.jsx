@@ -208,6 +208,7 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
     return [range(base.map((p) => p.x)), range(base.map((p) => p.y))]
   }, [filtered, rows])
 
+  const pct = (v, range) => Math.max(0, Math.min(100, ((v - range[0]) / (range[1] - range[0] || 1)) * 100))
   const sx = (v) => M.l + ((v - xd[0]) / (xd[1] - xd[0] || 1)) * (W - M.l - M.r)
   const sy = (v) => H - M.b - ((v - yd[0]) / (yd[1] - yd[0] || 1)) * (H - M.t - M.b)
 
@@ -340,6 +341,8 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
         </div>
       </section>
 
+      <div className="cmp-body">
+        <div className="cmp-main">
       {tab === 'chart' ? (
         <section className="cmp-chartcard">
           <div className="cmp-chart-head">
@@ -442,26 +445,6 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
               )}
             </svg>
           </div>
-
-          <div className="cmp-picked">
-            {selected ? (
-              <>
-                <span className="cmp-picked-name">{displayName(selected.racket, lang)}</span>
-                <span className="cmp-picked-meta">
-                  {selected.brand} · {selected.u} ·{' '}
-                  {plane === 'hh'
-                    ? `${c.table.hh} ${selected.x.toFixed(1)} · ${c.table.sw} ${selected.y.toFixed(1)}`
-                    : `${c.table.sw} ${selected.x.toFixed(1)} · ${c.table.flex} ${selected.y.toFixed(2)}`}
-                </span>
-                <span className={`cmp-badge${selected.certain ? ' ok' : ''}`}>
-                  {selected.certain ? c.picked.certain : c.picked.insufficient}
-                </span>
-                <button className="cmp-picked-open" onClick={() => onOpenDetail(selected.id)}>{c.picked.open}</button>
-              </>
-            ) : (
-              <span className="muted">{c.picked.hint}</span>
-            )}
-          </div>
         </section>
       ) : (
         <section className="cmp-tablecard">
@@ -512,6 +495,48 @@ export default function CompareView({ rackets, estimates, meta, lang, t, selecte
           </table>
         </section>
       )}
+        </div>
+        <aside className="cmp-rail">
+          {selected ? (
+            <div className="cmp-card">
+              <div className="cmp-card-head">
+                <span className="micro">{c.selected}</span>
+                <span className={`cmp-badge${selected.certain ? ' ok' : ''}`}>
+                  {selected.certain ? c.picked.certain : c.picked.insufficient}
+                </span>
+              </div>
+              <div className="cmp-card-name">{displayName(selected.racket, lang)}</div>
+              <div className="cmp-card-meta">
+                {selected.brand} · {selected.u}
+                {selected.racket.year ? ` · ${selected.racket.year}` : ''}
+              </div>
+              <div className="cmp-metric">
+                <div className="cmp-metric-top">
+                  <span>{plane === 'hh' ? c.table.hh : c.table.sw}</span>
+                  <b>{selected.x.toFixed(1)}</b>
+                </div>
+                <div className="cmp-mini"><i style={{ left: `${pct(selected.x, xd)}%` }} /></div>
+              </div>
+              <div className="cmp-metric">
+                <div className="cmp-metric-top">
+                  <span>{plane === 'hh' ? c.table.sw : c.table.flex}</span>
+                  <b>{plane === 'hh' ? selected.y.toFixed(1) : selected.y.toFixed(2)}</b>
+                </div>
+                <div className="cmp-mini"><i style={{ left: `${pct(selected.y, yd)}%` }} /></div>
+              </div>
+              <div className="cmp-card-foot">
+                <span className="cmp-card-grades">{c.grades} {selected.grade || '—'} · {selected.stGrade || '—'}</span>
+                <button className="rail-open" onClick={() => onOpenDetail(selected.id)}>{c.picked.open}</button>
+              </div>
+            </div>
+          ) : (
+            <div className="cmp-card">
+              <span className="micro">{c.selected}</span>
+              <p className="cmp-card-hint">{c.picked.hint}</p>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   )
 }
